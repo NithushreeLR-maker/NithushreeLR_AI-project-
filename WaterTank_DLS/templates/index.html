@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AI Water Tank - DLS</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+
+<body>
+
+<div class="main-container">
+
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <h1>💧 AI Water Tank</h1>
+
+        <p>
+            Depth-Limited Search Visualization
+        </p>
+
+    </div>
+
+
+    <div class="content">
+
+
+        <!-- WATER TANK -->
+
+        <div class="tank-section">
+
+            <h2>800 L Tank</h2>
+
+
+            <div class="tank-area">
+
+
+                <div class="scale">
+
+                    <span>800 L</span>
+                    <span>600 L</span>
+                    <span>400 L</span>
+                    <span>200 L</span>
+                    <span>0 L</span>
+
+                </div>
+
+
+                <div class="tank">
+
+                    <!-- Animated water -->
+
+                    <div
+                        id="water"
+                        class="water">
+                    </div>
+
+
+                    <!-- Water level lines -->
+
+                    <div class="level level-800">
+                        <span>800 L</span>
+                    </div>
+
+                    <div class="level level-600">
+                        <span>600 L</span>
+                    </div>
+
+                    <div class="level level-400">
+                        <span>400 L</span>
+                    </div>
+
+                    <div class="level level-200">
+                        <span>200 L</span>
+                    </div>
+
+                    <div class="level level-0">
+                        <span>0 L</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="current">
+
+                Current Water Level:
+
+                <strong id="currentLevel">
+                    {{ initial }} L
+                </strong>
+
+            </div>
+
+
+            <div
+                id="actionText"
+                class="action">
+            </div>
+
+        </div>
+
+
+        <!-- CONTROL PANEL -->
+
+        <div class="control-section">
+
+            <h2>Depth-Limited Search</h2>
+
+
+            <form method="POST">
+
+
+                <label>
+                    Initial Water Level
+                </label>
+
+                <select name="initial">
+
+                    <option value="0"
+                        {% if initial == 0 %}selected{% endif %}>
+                        0 L
+                    </option>
+
+                    <option value="200"
+                        {% if initial == 200 %}selected{% endif %}>
+                        200 L
+                    </option>
+
+                    <option value="400"
+                        {% if initial == 400 %}selected{% endif %}>
+                        400 L
+                    </option>
+
+                    <option value="600"
+                        {% if initial == 600 %}selected{% endif %}>
+                        600 L
+                    </option>
+
+                    <option value="800"
+                        {% if initial == 800 %}selected{% endif %}>
+                        800 L
+                    </option>
+
+                </select>
+
+
+                <label>
+                    Goal Water Level
+                </label>
+
+                <select name="goal">
+
+                    <option value="0"
+                        {% if goal == 0 %}selected{% endif %}>
+                        0 L
+                    </option>
+
+                    <option value="200"
+                        {% if goal == 200 %}selected{% endif %}>
+                        200 L
+                    </option>
+
+                    <option value="400"
+                        {% if goal == 400 %}selected{% endif %}>
+                        400 L
+                    </option>
+
+                    <option value="600"
+                        {% if goal == 600 %}selected{% endif %}>
+                        600 L
+                    </option>
+
+                    <option value="800"
+                        {% if goal == 800 %}selected{% endif %}>
+                        800 L
+                    </option>
+
+                </select>
+
+
+                <label>
+                    Depth Limit
+                </label>
+
+                <input
+                    type="number"
+                    name="depth"
+                    min="1"
+                    max="50"
+                    value="{{ depth }}"
+                    required
+                >
+
+
+                <button type="submit">
+
+                    🔍 Start DLS
+
+                </button>
+
+            </form>
+
+
+            {% if error %}
+
+            <div class="error">
+
+                ❌ {{ error }}
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- SEARCH RESULT -->
+
+    {% if result %}
+
+    <div class="result-section">
+
+
+        {% if result.success %}
+
+        <div class="success">
+
+            ✅ Goal Found!
+
+        </div>
+
+
+        <h2>Search Path</h2>
+
+
+        <div class="path">
+
+            {% for action, state in result.path %}
+
+            <div class="step">
+
+                <div class="step-number">
+
+                    {{ loop.index0 }}
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        {{ action }}
+                    </strong>
+
+                    <br>
+
+                    <span>
+                        Water Level:
+                        {{ state }} L
+                    </span>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <div class="steps-count">
+
+            Total Search Steps:
+
+            <strong>
+                {{ result.steps }}
+            </strong>
+
+        </div>
+
+
+        {% else %}
+
+        <div class="failure">
+
+            ❌ No solution found within
+            the selected depth limit.
+
+        </div>
+
+        {% endif %}
+
+
+    </div>
+
+    {% endif %}
+
+
+</div>
+
+
+<!-- ANIMATION -->
+
+{% if result and result.success %}
+
+<script>
+
+const waterLevels =
+    {{ result.water_levels | tojson }};
+
+const actions =
+    {{ result.path | map(attribute=0) | list | tojson }};
+
+
+let step = 0;
+
+
+function animateWater() {
+
+    if (step >= waterLevels.length) {
+
+        document.getElementById("actionText")
+            .innerText = "🎯 Goal Reached!";
+
+        return;
+    }
+
+
+    const level =
+        waterLevels[step];
+
+
+    const percentage =
+        (level / 800) * 100;
+
+
+    const water =
+        document.getElementById("water");
+
+
+    const current =
+        document.getElementById("currentLevel");
+
+
+    const action =
+        document.getElementById("actionText");
+
+
+    /*
+       Change water height.
+
+       If level increases:
+       water rises.
+
+       If level decreases:
+       water falls.
+    */
+
+    water.style.height =
+        percentage + "%";
+
+
+    current.innerText =
+        level + " L";
+
+
+    action.innerText =
+        actions[step];
+
+
+    step++;
+
+
+    /*
+       Wait 1.5 seconds before
+       showing the next DLS state.
+    */
+
+    setTimeout(
+        animateWater,
+        1500
+    );
+
+}
+
+
+window.onload = function() {
+
+    /*
+       Start animation from
+       the first state.
+    */
+
+    document.getElementById("water")
+        .style.height =
+        "0%";
+
+
+    setTimeout(
+        animateWater,
+        500
+    );
+
+};
+
+</script>
+
+{% endif %}
+
+
+</body>
+
+</html>

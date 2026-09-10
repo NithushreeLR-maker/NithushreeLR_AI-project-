@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AI Game Arena</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<header>
+
+    <div>
+        <h1>🎮 AI GAME ARENA</h1>
+
+        <p>
+            Play • Challenge • Learn AI
+        </p>
+    </div>
+
+    <div class="stats">
+
+        <div>
+            🏆 Score
+            <b id="score">0</b>
+        </div>
+
+        <div>
+            🥇 Wins
+            <b id="wins">0</b>
+        </div>
+
+        <div>
+            💀 Losses
+            <b id="losses">0</b>
+        </div>
+
+    </div>
+
+</header>
+
+
+<main>
+
+    <!-- CONTROL PANEL -->
+
+    <section class="control-panel">
+
+        <div>
+
+            <label>
+                Difficulty
+            </label>
+
+            <select id="difficulty">
+
+                <option value="easy">
+                    🟢 Easy
+                </option>
+
+                <option value="medium"
+                        selected>
+                    🟡 Medium
+                </option>
+
+                <option value="hard">
+                    🔴 Hard
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <button onclick="newGame()">
+            🔄 New Game
+        </button>
+
+    </section>
+
+
+    <!-- GAME CARDS -->
+
+    <section class="games">
+
+        <button class="game-card"
+                onclick="openGame('snake')">
+
+            <span>🐍</span>
+
+            <strong>
+                AI Snake
+            </strong>
+
+            <small>
+                A* Pathfinding
+            </small>
+
+        </button>
+
+
+        <button class="game-card"
+                onclick="openGame('racing')">
+
+            <span>🚗</span>
+
+            <strong>
+                AI Car Racing
+            </strong>
+
+            <small>
+                Path Following
+            </small>
+
+        </button>
+
+
+        <button class="game-card"
+                onclick="openGame('shooter')">
+
+            <span>🚀</span>
+
+            <strong>
+                Space Shooter AI
+            </strong>
+
+            <small>
+                Enemy Targeting
+            </small>
+
+        </button>
+
+
+        <button class="game-card"
+                onclick="openGame('runner')">
+
+            <span>🏃</span>
+
+            <strong>
+                AI Runner
+            </strong>
+
+            <small>
+                Decision Making
+            </small>
+
+        </button>
+
+
+        <button class="game-card"
+                onclick="openGame('zombie')">
+
+            <span>🧟</span>
+
+            <strong>
+                Zombie Survival
+            </strong>
+
+            <small>
+                BFS / A*
+            </small>
+
+        </button>
+
+
+        <button class="game-card"
+                onclick="openGame('maze')">
+
+            <span>🧩</span>
+
+            <strong>
+                AI Maze Escape
+            </strong>
+
+            <small>
+                BFS / DFS / A*
+            </small>
+
+        </button>
+
+    </section>
+
+
+    <!-- GAME AREA -->
+
+    <section class="game-area">
+
+        <h2 id="gameTitle">
+            Select a Game
+        </h2>
+
+
+        <canvas id="gameCanvas"
+                width="900"
+                height="520">
+        </canvas>
+
+
+        <div id="message">
+
+            Choose a game to start.
+
+        </div>
+
+
+        <div class="controls-help">
+
+            ⌨️ Arrow Keys / WASD
+            &nbsp; | &nbsp;
+            Space = Shoot
+            &nbsp; | &nbsp;
+            R = Restart
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<script src="{{ url_for('static',
+              filename='game.js') }}">
+</script>
+
+</body>
+
+</html>

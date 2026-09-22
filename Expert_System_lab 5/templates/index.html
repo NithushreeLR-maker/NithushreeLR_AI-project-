@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>ExpertAI | Rule Based Expert System</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
+
+<nav class="navbar">
+
+    <div class="brand">
+
+        <div class="brand-icon">
+            ✦
+        </div>
+
+        <div>
+            <h2>ExpertAI</h2>
+            <span>Rule Based Expert System</span>
+        </div>
+
+    </div>
+
+    <div class="status">
+        <span class="status-dot"></span>
+        SYSTEM ONLINE
+    </div>
+
+</nav>
+
+
+<!-- =====================================================
+     HERO
+===================================================== -->
+
+<section class="hero">
+
+    <div class="hero-content">
+
+        <div class="tag">
+            ARTIFICIAL INTELLIGENCE • PRACTICAL 05
+        </div>
+
+        <h1>
+            Campus Health
+            <span>Expert System</span>
+        </h1>
+
+        <p>
+            Select one or more symptoms and the rule based
+            inference engine will analyze the knowledge base
+            and generate a result with suggested care.
+        </p>
+
+        <div class="hero-features">
+
+            <div>
+                <strong>11</strong>
+                <small>Symptoms</small>
+            </div>
+
+            <div>
+                <strong>5</strong>
+                <small>Rules</small>
+            </div>
+
+            <div>
+                <strong>100%</strong>
+                <small>Rule Based</small>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="hero-card">
+
+        <div class="brain">
+            🧠
+        </div>
+
+        <h3>Inference Engine</h3>
+
+        <p>
+            Facts → Knowledge → Rules → Result
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main class="container">
+
+
+    <!-- =================================================
+         SYMPTOM SELECTION
+    ================================================== -->
+
+    <form method="POST">
+
+        <section class="panel">
+
+            <div class="section-heading">
+
+                <div class="heading-left">
+
+                    <span class="section-number">
+                        01
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Select Symptoms
+                        </h2>
+
+                        <p>
+                            Choose one or more symptoms
+                            for analysis.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="selected-count">
+
+                    {{ selected|length }}
+                    Selected
+
+                </div>
+
+            </div>
+
+
+            <div class="symptom-grid">
+
+                {% for symptom in symptoms %}
+
+                <label class="symptom-card">
+
+                    <input
+                        type="checkbox"
+                        name="symptoms"
+                        value="{{ symptom.value }}"
+                        {% if symptom.value in selected %}
+                        checked
+                        {% endif %}
+                    >
+
+                    <div class="check"></div>
+
+                    <div class="symptom-icon">
+                        {{ symptom.icon }}
+                    </div>
+
+                    <div class="symptom-info">
+
+                        <h3>
+                            {{ symptom.name }}
+                        </h3>
+
+                        <span>
+                            {{ symptom.category }}
+                        </span>
+
+                    </div>
+
+                </label>
+
+                {% endfor %}
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="analyze-btn">
+
+                <span>
+                    Run Expert Analysis
+                </span>
+
+                <span class="arrow">
+                    →
+                </span>
+
+            </button>
+
+        </section>
+
+    </form>
+
+
+    <!-- =================================================
+         RESULT
+    ================================================== -->
+
+    {% if result %}
+
+    <section class="result-panel">
+
+        <div class="result-header">
+
+            <div class="heading-left">
+
+                <span class="section-number">
+                    02
+                </span>
+
+                <div>
+
+                    <h2>
+                        Expert System Result
+                    </h2>
+
+                    <p>
+                        Generated by the inference engine
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <span class="result-badge {{ result.level }}">
+                {{ result.level | upper }}
+            </span>
+
+        </div>
+
+
+        <!-- MAIN RESULT -->
+
+        <div class="result-main">
+
+            <div class="result-icon">
+
+                {% if result.level == "emergency" %}
+                    🚨
+                {% elif result.level == "urgent" %}
+                    ⚠️
+                {% elif result.level == "clinic" %}
+                    🏥
+                {% elif result.level == "self-care" %}
+                    🌿
+                {% else %}
+                    🔎
+                {% endif %}
+
+            </div>
+
+
+            <div class="result-content">
+
+                <span class="result-label">
+                    SYSTEM CONCLUSION
+                </span>
+
+                <h1>
+                    {{ result.result }}
+                </h1>
+
+                <p>
+                    {{ result.advice }}
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             TREATMENT / SUGGESTED CARE
+        ================================================== -->
+
+        <div class="treatment-box">
+
+            <div class="treatment-title">
+
+                <div class="treatment-icon">
+                    ✚
+                </div>
+
+                <div>
+
+                    <h3>
+                        Suggested Care
+                    </h3>
+
+                    <span>
+                        General educational guidance
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="treatment-list">
+
+                {% for item in result.treatment %}
+
+                <div class="treatment-item">
+
+                    <span class="tick">
+                        ✓
+                    </span>
+
+                    <span>
+                        {{ item }}
+                    </span>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             ANALYSIS INFORMATION
+        ================================================== -->
+
+        <div class="analysis-grid">
+
+            <div class="analysis-card">
+
+                <span>
+                    MATCHED CONDITION
+                </span>
+
+                <strong>
+                    {{ result.condition }}
+                </strong>
+
+            </div>
+
+
+            <div class="analysis-card">
+
+                <span>
+                    ANALYSIS TYPE
+                </span>
+
+                <strong>
+
+                    {% if result.type == "rule" %}
+                        Rule Based Inference
+                    {% else %}
+                        Individual Symptom Analysis
+                    {% endif %}
+
+                </strong>
+
+            </div>
+
+
+            <div class="analysis-card">
+
+                <span>
+                    RULES FIRED
+                </span>
+
+                <strong>
+
+                    {% if result.rules %}
+
+                        {% for rule in result.rules %}
+
+                            {{ rule }}
+
+                            {% if not loop.last %}
+                                ,
+                            {% endif %}
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        Individual Analysis
+
+                    {% endif %}
+
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             REASONING
+        ================================================== -->
+
+        <div class="reasoning">
+
+            <div class="reasoning-icon">
+                💡
+            </div>
+
+            <div>
+
+                <span>
+                    INFERENCE REASONING
+                </span>
+
+                <p>
+                    {{ result.reasoning }}
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    {% endif %}
+
+
+    <!-- =================================================
+         KNOWLEDGE BASE
+    ================================================== -->
+
+    <section class="panel">
+
+        <div class="section-heading">
+
+            <div class="heading-left">
+
+                <span class="section-number">
+                    03
+                </span>
+
+                <div>
+
+                    <h2>
+                        Knowledge Base
+                    </h2>
+
+                    <p>
+                        IF THEN rules used by the expert system.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="rules-grid">
+
+            {% for rule in rules %}
+
+            <div class="rule-card">
+
+                <div class="rule-top">
+
+                    <span class="rule-id">
+                        {{ rule.id }}
+                    </span>
+
+                    <span class="rule-level
+                        {{ rule.level }}">
+                        {{ rule.level }}
+                    </span>
+
+                </div>
+
+
+                <h3>
+                    {{ rule.name }}
+                </h3>
+
+
+                <div class="if-block">
+
+                    <span>IF</span>
+
+                    {{ rule.condition }}
+
+                </div>
+
+
+                <div class="then-block">
+
+                    <span>THEN</span>
+
+                    {{ rule.result }}
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         PROCESS
+    ================================================== -->
+
+    <section class="process">
+
+        <div class="section-heading">
+
+            <div class="heading-left">
+
+                <span class="section-number">
+                    04
+                </span>
+
+                <div>
+
+                    <h2>
+                        Inference Process
+                    </h2>
+
+                    <p>
+                        How the rule based expert system works.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="process-grid">
+
+            <div class="process-card">
+
+                <div class="process-icon">
+                    01
+                </div>
+
+                <h3>
+                    Facts
+                </h3>
+
+                <p>
+                    User selects the observed symptoms.
+                </p>
+
+            </div>
+
+
+            <div class="process-line">
+                →
+            </div>
+
+
+            <div class="process-card">
+
+                <div class="process-icon">
+                    02
+                </div>
+
+                <h3>
+                    Knowledge Base
+                </h3>
+
+                <p>
+                    System stores predefined IF THEN rules.
+                </p>
+
+            </div>
+
+
+            <div class="process-line">
+                →
+            </div>
+
+
+            <div class="process-card">
+
+                <div class="process-icon">
+                    03
+                </div>
+
+                <h3>
+                    Inference
+                </h3>
+
+                <p>
+                    The engine checks which rules match.
+                </p>
+
+            </div>
+
+
+            <div class="process-line">
+                →
+            </div>
+
+
+            <div class="process-card">
+
+                <div class="process-icon">
+                    04
+                </div>
+
+                <h3>
+                    Result
+                </h3>
+
+                <p>
+                    Result and suggested care are displayed.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
+<footer>
+
+    <div class="footer-logo">
+        ✦ ExpertAI
+    </div>
+
+    <p>
+        Rule Based Expert System | Artificial Intelligence Practical
+    </p>
+
+    <small>
+        Educational laboratory demonstration only.
+        This system does not provide medical diagnosis.
+    </small>
+
+</footer>
+
+</body>
+</html>

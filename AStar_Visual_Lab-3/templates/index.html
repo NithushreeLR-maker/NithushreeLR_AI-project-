@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>A* Visual Lab</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+
+<!-- =====================================================
+     BACKGROUND
+===================================================== -->
+
+<div class="background">
+
+    <div class="orb orb-one"></div>
+
+    <div class="orb orb-two"></div>
+
+    <div class="grid-background"></div>
+
+</div>
+
+
+<div class="app-container">
+
+
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
+
+<nav class="navbar">
+
+    <div class="brand">
+
+        <div class="brand-icon">
+            A*
+        </div>
+
+        <div>
+
+            <strong>
+                A* Visual Lab
+            </strong>
+
+            <span>
+                Artificial Intelligence
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="nav-badge">
+
+        PRACTICAL 03
+
+    </div>
+
+</nav>
+
+
+<!-- =====================================================
+     HERO
+===================================================== -->
+
+<section class="hero">
+
+    <div class="hero-content">
+
+        <div class="eyebrow">
+            INTELLIGENT SEARCH • 8 PUZZLE
+        </div>
+
+        <h1>
+            Explore the Power of
+            <span>A* Search</span>
+        </h1>
+
+        <p>
+
+            Visualize how A* finds the shortest solution
+            using Misplaced Tiles and Manhattan Distance.
+
+        </p>
+
+
+        <div class="formula-main">
+
+            <span>f(n)</span>
+
+            <b>=</b>
+
+            <span>g(n)</span>
+
+            <b>+</b>
+
+            <span>h(n)</span>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     DASHBOARD
+===================================================== -->
+
+<main class="dashboard">
+
+
+<!-- =====================================================
+     PUZZLE PANEL
+===================================================== -->
+
+<section class="panel puzzle-panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <span class="section-label">
+                INPUT
+            </span>
+
+            <h2>
+                Configure Puzzle
+            </h2>
+
+        </div>
+
+        <div class="status-dot">
+            READY
+        </div>
+
+    </div>
+
+
+    <p class="helper-text">
+
+        Enter numbers from 0 to 8.
+        <strong>0 represents the blank tile.</strong>
+
+    </p>
+
+
+    <!-- Puzzle -->
+
+    <div
+        id="inputBoard"
+        class="puzzle-board"
+    >
+
+        {% for i in range(9) %}
+
+        <input
+            id="cell{{ i }}"
+            class="puzzle-input"
+            type="number"
+            min="0"
+            max="8"
+            value="{{ [1,2,3,7,6,8,5,4,0][i] }}"
+        >
+
+        {% endfor %}
+
+    </div>
+
+
+    <!-- Controls -->
+
+    <div class="control-row">
+
+        <button
+            class="glass-button"
+            onclick="generatePuzzle()"
+        >
+
+            <span>⟳</span>
+
+            Random Puzzle
+
+        </button>
+
+
+        <button
+            class="glass-button"
+            onclick="resetPuzzle()"
+        >
+
+            <span>↺</span>
+
+            Reset
+
+        </button>
+
+    </div>
+
+
+    <!-- Goal -->
+
+    <div class="goal-container">
+
+        <div>
+
+            <span class="section-label">
+                TARGET
+            </span>
+
+            <h3>
+                Goal State
+            </h3>
+
+        </div>
+
+
+        <div class="goal-board">
+
+            <div>1</div>
+            <div>2</div>
+            <div>3</div>
+
+            <div>4</div>
+            <div>5</div>
+            <div>6</div>
+
+            <div>7</div>
+            <div>8</div>
+            <div class="empty"></div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     HEURISTIC PANEL
+===================================================== -->
+
+<section class="panel heuristic-panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <span class="section-label">
+                INTELLIGENCE
+            </span>
+
+            <h2>
+                Choose Heuristic
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="heuristic-options">
+
+
+        <label
+            class="heuristic-option active"
+        >
+
+            <input
+                type="radio"
+                name="heuristic"
+                value="both"
+                checked
+            >
+
+            <div class="option-icon">
+                ⚡
+            </div>
+
+            <div class="option-content">
+
+                <strong>
+                    Compare Both
+                </strong>
+
+                <span>
+                    Run both heuristics
+                    and compare performance.
+                </span>
+
+            </div>
+
+            <div class="radio-circle"></div>
+
+        </label>
+
+
+        <label class="heuristic-option">
+
+            <input
+                type="radio"
+                name="heuristic"
+                value="misplaced"
+            >
+
+            <div class="option-icon">
+                01
+            </div>
+
+            <div class="option-content">
+
+                <strong>
+                    Misplaced Tiles
+                </strong>
+
+                <span>
+                    Counts tiles that are
+                    not in their goal position.
+                </span>
+
+            </div>
+
+            <div class="radio-circle"></div>
+
+        </label>
+
+
+        <label class="heuristic-option">
+
+            <input
+                type="radio"
+                name="heuristic"
+                value="manhattan"
+            >
+
+            <div class="option-icon">
+                02
+            </div>
+
+            <div class="option-content">
+
+                <strong>
+                    Manhattan Distance
+                </strong>
+
+                <span>
+                    Measures row and column
+                    distance from the goal.
+                </span>
+
+            </div>
+
+            <div class="radio-circle"></div>
+
+        </label>
+
+    </div>
+
+
+    <button
+        class="solve-button"
+        onclick="solvePuzzle()"
+    >
+
+        <span class="play-icon">
+            ▶
+        </span>
+
+        Run A* Search
+
+        <span class="arrow">
+            →
+        </span>
+
+    </button>
+
+
+    <div
+        id="message"
+        class="message"
+    ></div>
+
+
+</section>
+
+
+<!-- =====================================================
+     THEORY
+===================================================== -->
+
+<section class="panel theory-panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <span class="section-label">
+                CONCEPT
+            </span>
+
+            <h2>
+                How A* Thinks
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="formula-card">
+
+        <div class="formula-label">
+            EVALUATION FUNCTION
+        </div>
+
+        <div class="large-formula">
+
+            <span>f(n)</span>
+
+            <span>=</span>
+
+            <span>g(n)</span>
+
+            <span>+</span>
+
+            <span>h(n)</span>
+
+        </div>
+
+    </div>
+
+
+    <div class="concept-grid">
+
+        <div class="concept">
+
+            <div class="concept-number">
+                g
+            </div>
+
+            <div>
+
+                <strong>
+                    Cost So Far
+                </strong>
+
+                <p>
+                    Number of moves already
+                    made from the starting state.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="concept">
+
+            <div class="concept-number">
+                h
+            </div>
+
+            <div>
+
+                <strong>
+                    Estimated Cost
+                </strong>
+
+                <p>
+                    Estimated number of moves
+                    remaining to reach the goal.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="concept">
+
+            <div class="concept-number">
+                f
+            </div>
+
+            <div>
+
+                <strong>
+                    Total Cost
+                </strong>
+
+                <p>
+                    A* expands the state with
+                    the smallest f value.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     RESULTS
+===================================================== -->
+
+<section
+    id="resultsSection"
+    class="panel results-panel hidden"
+>
+
+    <div class="panel-header">
+
+        <div>
+
+            <span class="section-label">
+                ANALYSIS
+            </span>
+
+            <h2>
+                Search Performance
+            </h2>
+
+        </div>
+
+        <div class="comparison-badge">
+            A* COMPARISON
+        </div>
+
+    </div>
+
+
+    <div
+        id="resultCards"
+        class="result-grid"
+    ></div>
+
+
+    <div
+        id="comparisonBox"
+        class="comparison-box"
+    ></div>
+
+</section>
+
+
+<!-- =====================================================
+     SOLUTION VISUALIZER
+===================================================== -->
+
+<section
+    id="solutionSection"
+    class="panel solution-panel hidden"
+>
+
+    <div class="panel-header">
+
+        <div>
+
+            <span class="section-label">
+                VISUALIZER
+            </span>
+
+            <h2>
+                Solution Path
+            </h2>
+
+        </div>
+
+        <div
+            id="stepCounter"
+            class="step-counter"
+        >
+            STEP 0
+        </div>
+
+    </div>
+
+
+    <div class="visualizer">
+
+        <button
+            class="navigation-button"
+            onclick="previousStep()"
+        >
+            ←
+        </button>
+
+
+        <div class="solution-center">
+
+            <div
+                id="solutionBoard"
+                class="solution-board"
+            ></div>
+
+            <div
+                id="moveDescription"
+                class="move-description"
+            >
+                Starting State
+            </div>
+
+        </div>
+
+
+        <button
+            class="navigation-button"
+            onclick="nextStep()"
+        >
+            →
+        </button>
+
+    </div>
+
+
+    <div class="progress-container">
+
+        <div
+            id="progressBar"
+            class="progress-bar"
+        ></div>
+
+    </div>
+
+
+    <div class="visualizer-controls">
+
+        <button
+            class="control-button"
+            onclick="previousStep()"
+        >
+
+            ← Previous
+
+        </button>
+
+
+        <button
+            class="control-button play-control"
+            onclick="toggleAutoPlay()"
+        >
+
+            ▶ Auto Play
+
+        </button>
+
+
+        <button
+            class="control-button"
+            onclick="nextStep()"
+        >
+
+            Next →
+
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     APPLICATIONS
+===================================================== -->
+
+<section class="applications">
+
+    <div class="application-card">
+
+        <div class="application-icon">
+            🗺️
+        </div>
+
+        <h3>
+            Navigation
+        </h3>
+
+        <p>
+            Finding efficient routes in maps
+            and transportation systems.
+        </p>
+
+    </div>
+
+
+    <div class="application-card">
+
+        <div class="application-icon">
+            🤖
+        </div>
+
+        <h3>
+            Robotics
+        </h3>
+
+        <p>
+            Planning paths for robots
+            moving around obstacles.
+        </p>
+
+    </div>
+
+
+    <div class="application-card">
+
+        <div class="application-icon">
+            🎮
+        </div>
+
+        <h3>
+            Games
+        </h3>
+
+        <p>
+            Finding paths for characters
+            in grid based environments.
+        </p>
+
+    </div>
+
+
+    <div class="application-card">
+
+        <div class="application-icon">
+            🧠
+        </div>
+
+        <h3>
+            AI Planning
+        </h3>
+
+        <p>
+            Searching through possible
+            states to reach a target.
+        </p>
+
+    </div>
+
+</section>
+
+
+</main>
+
+
+<footer>
+
+    <strong>
+        A* Visual Lab
+    </strong>
+
+    <span>
+        Practical 3 • Artificial Intelligence
+    </span>
+
+</footer>
+
+
+</div>
+
+
+<script
+    src="{{ url_for('static', filename='script.js') }}"
+></script>
+
+</body>
+
+</html>

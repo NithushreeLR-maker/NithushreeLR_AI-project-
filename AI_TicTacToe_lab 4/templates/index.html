@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        AI Tic Tac Toe Arena
+    </title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="background">
+
+    <!-- HEADER -->
+
+    <header class="header">
+
+        <div class="brand">
+
+            <div class="logo">
+                🧠
+            </div>
+
+            <div>
+
+                <h1>
+                    AI Tic Tac Toe Arena
+                </h1>
+
+                <p>
+                    Minimax & Alpha Beta Pruning Visualizer
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="practical-badge">
+            PRACTICAL 04
+        </div>
+
+    </header>
+
+
+    <!-- MAIN -->
+
+    <main class="container">
+
+
+        <!-- LEFT SIDE -->
+
+        <section class="game-section">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="small-title">
+                        ARTIFICIAL INTELLIGENCE
+                    </span>
+
+                    <h2>
+                        Play Against the AI
+                    </h2>
+
+                </div>
+
+                <div id="status"
+                     class="status waiting">
+
+                    Your Turn
+
+                </div>
+
+            </div>
+
+
+            <!-- AI SELECTOR -->
+
+            <div class="control-card">
+
+                <div class="control-title">
+
+                    <span>
+                        🤖 AI Algorithm
+                    </span>
+
+                </div>
+
+                <div class="algorithm-buttons">
+
+                    <button
+                        id="minimaxBtn"
+                        class="algorithm-btn"
+                        onclick="selectAlgorithm('minimax')">
+
+                        <span class="button-icon">
+                            🧠
+                        </span>
+
+                        <span>
+                            <strong>Minimax</strong>
+                            <small>
+                                Complete Search
+                            </small>
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        id="alphaBtn"
+                        class="algorithm-btn active"
+                        onclick="selectAlgorithm('alphabeta')">
+
+                        <span class="button-icon">
+                            ⚡
+                        </span>
+
+                        <span>
+                            <strong>Alpha Beta</strong>
+                            <small>
+                                Optimized Search
+                            </small>
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- GAME BOARD -->
+
+            <div class="board-wrapper">
+
+                <div class="player-label ai-label">
+
+                    <span class="player-icon">
+                        X
+                    </span>
+
+                    <div>
+                        <strong>
+                            COMPUTER
+                        </strong>
+
+                        <small>
+                            AI Player
+                        </small>
+                    </div>
+
+                </div>
+
+
+                <div id="board"
+                     class="board">
+
+                    <button class="cell"
+                            data-index="0"></button>
+
+                    <button class="cell"
+                            data-index="1"></button>
+
+                    <button class="cell"
+                            data-index="2"></button>
+
+                    <button class="cell"
+                            data-index="3"></button>
+
+                    <button class="cell"
+                            data-index="4"></button>
+
+                    <button class="cell"
+                            data-index="5"></button>
+
+                    <button class="cell"
+                            data-index="6"></button>
+
+                    <button class="cell"
+                            data-index="7"></button>
+
+                    <button class="cell"
+                            data-index="8"></button>
+
+                </div>
+
+
+                <div class="player-label human-label">
+
+                    <span class="player-icon human">
+                        O
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            YOU
+                        </strong>
+
+                        <small>
+                            Human Player
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- GAME BUTTONS -->
+
+            <div class="game-buttons">
+
+                <button
+                    class="primary-btn"
+                    onclick="newGame()">
+
+                    ↻ New Game
+
+                </button>
+
+                <button
+                    class="secondary-btn"
+                    onclick="compareAlgorithms()">
+
+                    ⚔ Compare Algorithms
+
+                </button>
+
+            </div>
+
+
+            <!-- MESSAGE -->
+
+            <div id="message"
+                 class="message-box">
+
+                <span>
+                    💡
+                </span>
+
+                Make your move. The AI will calculate
+                the optimal response.
+
+            </div>
+
+        </section>
+
+
+        <!-- RIGHT SIDE -->
+
+        <aside class="analytics-section">
+
+
+            <div class="analytics-header">
+
+                <span class="small-title">
+                    REAL TIME ANALYTICS
+                </span>
+
+                <h2>
+                    AI Performance
+                </h2>
+
+            </div>
+
+
+            <!-- STAT CARDS -->
+
+            <div class="stats-grid">
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        🔎
+                    </div>
+
+                    <span>
+                        Nodes Explored
+                    </span>
+
+                    <strong id="nodes">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ✂️
+                    </div>
+
+                    <span>
+                        Branches Pruned
+                    </span>
+
+                    <strong id="pruned">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        🎯
+                    </div>
+
+                    <span>
+                        AI Score
+                    </span>
+
+                    <strong id="score">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        📍
+                    </div>
+
+                    <span>
+                        Selected Move
+                    </span>
+
+                    <strong id="move">
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- ALPHA BETA PANEL -->
+
+            <div class="explanation-card">
+
+                <div class="card-title">
+
+                    <span>
+                        ⚡
+                    </span>
+
+                    Alpha Beta Logic
+
+                </div>
+
+                <div class="logic-row">
+
+                    <div class="logic-box">
+
+                        <small>
+                            ALPHA
+                        </small>
+
+                        <strong id="alphaValue">
+                            −∞
+                        </strong>
+
+                    </div>
+
+                    <div class="logic-symbol">
+                        ≥
+                    </div>
+
+                    <div class="logic-box">
+
+                        <small>
+                            BETA
+                        </small>
+
+                        <strong id="betaValue">
+                            +∞
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="cut-line">
+
+                    ✂️ Branches are skipped when
+                    Alpha ≥ Beta
+
+                </div>
+
+            </div>
+
+
+            <!-- COMPARISON -->
+
+            <div class="comparison-card">
+
+                <div class="card-title">
+
+                    📊 Algorithm Comparison
+
+                </div>
+
+
+                <div class="comparison-table">
+
+                    <div class="table-row header-row">
+
+                        <span>
+                            Metric
+                        </span>
+
+                        <span>
+                            Minimax
+                        </span>
+
+                        <span>
+                            Alpha Beta
+                        </span>
+
+                    </div>
+
+
+                    <div class="table-row">
+
+                        <span>
+                            Nodes
+                        </span>
+
+                        <strong id="mmNodes">
+                            —
+                        </strong>
+
+                        <strong id="abNodes">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="table-row">
+
+                        <span>
+                            Score
+                        </span>
+
+                        <strong id="mmScore">
+                            —
+                        </strong>
+
+                        <strong id="abScore">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="table-row">
+
+                        <span>
+                            Best Move
+                        </span>
+
+                        <strong id="mmMove">
+                            —
+                        </strong>
+
+                        <strong id="abMove">
+                            —
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div id="comparisonResult"
+                     class="comparison-result">
+
+                    Run comparison to see
+                    performance difference.
+
+                </div>
+
+            </div>
+
+
+        </aside>
+
+    </main>
+
+
+    <!-- EXPLANATION -->
+
+    <section class="learning-section">
+
+        <div class="learning-heading">
+
+            <span class="small-title">
+                PRACTICAL CONCEPT
+            </span>
+
+            <h2>
+                How the AI Thinks
+            </h2>
+
+        </div>
+
+
+        <div class="concept-grid">
+
+
+            <div class="concept-card">
+
+                <div class="concept-number">
+                    01
+                </div>
+
+                <h3>
+                    Minimax
+                </h3>
+
+                <p>
+                    Minimax explores possible future moves.
+                    MAX tries to maximize the score while
+                    MIN tries to minimize it.
+                </p>
+
+                <div class="formula">
+                    MAX → Maximum
+                    <br>
+                    MIN → Minimum
+                </div>
+
+            </div>
+
+
+            <div class="concept-card">
+
+                <div class="concept-number">
+                    02
+                </div>
+
+                <h3>
+                    Alpha Beta
+                </h3>
+
+                <p>
+                    Alpha Beta uses the same Minimax logic,
+                    but removes branches that cannot change
+                    the final decision.
+                </p>
+
+                <div class="formula">
+                    If α ≥ β
+                    <br>
+                    → Prune Branch
+                </div>
+
+            </div>
+
+
+            <div class="concept-card">
+
+                <div class="concept-number">
+                    03
+                </div>
+
+                <h3>
+                    Same Decision
+                </h3>
+
+                <p>
+                    Both algorithms calculate the same
+                    optimal result. Alpha Beta simply avoids
+                    unnecessary calculations.
+                </p>
+
+                <div class="formula">
+                    Same Answer ✓
+                    <br>
+                    Less Work ✓
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <footer>
+
+        <p>
+            AI Tic Tac Toe Arena
+            •
+            Practical 4
+            •
+            Minimax & Alpha Beta Pruning
+        </p>
+
+    </footer>
+
+</div>
+
+
+<script src="{{ url_for('static', filename='script.js') }}">
+</script>
+
+</body>
+
+</html>

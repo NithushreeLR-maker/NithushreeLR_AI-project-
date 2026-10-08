@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>UCS Robot Delivery AI Lab</title>
+
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+
+<body>
+
+<div class="background-grid"></div>
+
+<div class="app">
+
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
+
+    <header class="header">
+
+        <div>
+
+            <div class="tag">
+                ARTIFICIAL INTELLIGENCE • SEARCH • STRIPS
+            </div>
+
+            <h1>
+                Autonomous
+                <span>Delivery Robot</span>
+            </h1>
+
+            <p>
+                Uniform Cost Search based intelligent warehouse
+                delivery and STRIPS planning simulation.
+            </p>
+
+        </div>
+
+
+        <div class="algorithm-card">
+
+            <div class="algorithm-icon">
+                🧠
+            </div>
+
+            <div>
+                <strong>UCS</strong>
+                <small>
+                    Uniform Cost Search
+                </small>
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- ================================================= -->
+    <!-- CONTROL PANEL -->
+    <!-- ================================================= -->
+
+    <section class="control-panel">
+
+        <div class="control">
+
+            <label>
+                📦 PRODUCT LOCATION
+            </label>
+
+            <select id="productLocation">
+
+                <option value="WAREHOUSE">
+                    Main Warehouse
+                </option>
+
+                <option value="A">
+                    Sub Warehouse A
+                </option>
+
+                <option value="B">
+                    Sub Warehouse B
+                </option>
+
+                <option value="C">
+                    Sub Warehouse C
+                </option>
+
+                <option value="D">
+                    Sub Warehouse D
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="control">
+
+            <label>
+                🏠 CLIENT HOUSE
+            </label>
+
+            <select id="goalHouse">
+
+                <option value="H1">
+                    House 1
+                </option>
+
+                <option value="H2" selected>
+                    House 2
+                </option>
+
+                <option value="H3">
+                    House 3
+                </option>
+
+                <option value="H4">
+                    House 4
+                </option>
+
+                <option value="H5">
+                    House 5
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <button
+            id="startButton"
+            class="start-button">
+
+            🚀 ACTIVATE ROBOT
+
+        </button>
+
+
+        <button
+            id="resetButton"
+            class="reset-button">
+
+            ↻ RESET
+
+        </button>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- MAIN -->
+    <!-- ================================================= -->
+
+    <main class="main-grid">
+
+
+        <!-- ================================================= -->
+        <!-- MAP -->
+        <!-- ================================================= -->
+
+        <section class="map-panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        🌐 Smart Delivery Environment
+                    </h2>
+
+                    <p id="status">
+                        Robot is waiting in Main Warehouse
+                    </p>
+
+                </div>
+
+
+                <div class="live">
+
+                    <span></span>
+
+                    SYSTEM READY
+
+                </div>
+
+            </div>
+
+
+            <div id="map">
+
+                <svg
+                    id="roads"
+                    viewBox="0 0 100 100"
+                    preserveAspectRatio="none">
+                </svg>
+
+
+                <!-- ============================ -->
+                <!-- NODES -->
+                <!-- ============================ -->
+
+                {% for key, position in positions.items() %}
+
+                <div
+                    class="location
+                    {% if key == 'WAREHOUSE' %}
+                        warehouse
+                    {% elif key in ['A','B','C','D'] %}
+                        subwarehouse
+                    {% elif key.startswith('S') %}
+                        society
+                    {% else %}
+                        house
+                    {% endif %}"
+
+                    id="location-{{ key }}"
+
+                    style="
+                        left: {{ position[0] }}%;
+                        top: {{ position[1] }}%;
+                    "
+                >
+
+                    <div class="location-icon">
+
+                        {% if key == 'WAREHOUSE' %}
+
+                            🏭
+
+                        {% elif key in ['A','B','C','D'] %}
+
+                            📦
+
+                        {% elif key.startswith('S') %}
+
+                            🏘️
+
+                        {% else %}
+
+                            🏠
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <strong>
+
+                        {% if key == "WAREHOUSE" %}
+
+                            WH
+
+                        {% else %}
+
+                            {{ key }}
+
+                        {% endif %}
+
+                    </strong>
+
+
+                    <small>
+                        {{ names[key] }}
+                    </small>
+
+                </div>
+
+                {% endfor %}
+
+
+                <!-- ================================================= -->
+                <!-- ROBOT -->
+                <!-- ================================================= -->
+
+                <div id="robot">
+
+                    <div class="robot-glow">
+
+                        🤖
+
+                    </div>
+
+                    <div class="robot-name">
+                        AI ROBOT
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- PACKAGE -->
+                <!-- ================================================= -->
+
+                <div id="package">
+
+                    📦
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- DELIVERY EFFECT -->
+                <!-- ================================================= -->
+
+                <div
+                    id="deliveryEffect"
+                    class="delivery-effect">
+
+                    ✓
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- LEGEND -->
+            <!-- ================================================= -->
+
+            <div class="legend">
+
+                <div>
+                    <i class="blue"></i>
+                    Main Warehouse
+                </div>
+
+                <div>
+                    <i class="purple"></i>
+                    Sub Warehouse
+                </div>
+
+                <div>
+                    <i class="green"></i>
+                    Society
+                </div>
+
+                <div>
+                    <i class="pink"></i>
+                    Client House
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================================= -->
+        <!-- RIGHT PANEL -->
+        <!-- ================================================= -->
+
+        <aside class="side-panel">
+
+
+            <div class="info-card">
+
+                <span>
+                    SEARCH ALGORITHM
+                </span>
+
+                <strong>
+                    Uniform Cost Search
+                </strong>
+
+                <small>
+                    Finds minimum cost path
+                </small>
+
+            </div>
+
+
+            <div class="info-card">
+
+                <span>
+                    PLANNING MODEL
+                </span>
+
+                <strong>
+                    STRIPS
+                </strong>
+
+                <small>
+                    State space planning
+                </small>
+
+            </div>
+
+
+            <div class="info-card">
+
+                <span>
+                    CURRENT STATE
+                </span>
+
+                <strong id="currentState">
+                    At(Robot, Warehouse)
+                </strong>
+
+            </div>
+
+
+            <div class="info-card goal-card">
+
+                <span>
+                    GOAL STATE
+                </span>
+
+                <strong id="goalState">
+                    Delivered(Product, House 2)
+                </strong>
+
+            </div>
+
+
+            <div class="cost-card">
+
+                <span>
+                    TOTAL PATH COST
+                </span>
+
+                <strong id="totalCost">
+                    0
+                </strong>
+
+                <small>
+                    UCS movement cost
+                </small>
+
+            </div>
+
+
+        </aside>
+
+    </main>
+
+
+    <!-- ================================================= -->
+    <!-- LOWER PANELS -->
+    <!-- ================================================= -->
+
+    <section class="bottom-grid">
+
+
+        <!-- ================================================= -->
+        <!-- UCS TRACE -->
+        <!-- ================================================= -->
+
+        <div class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        🔎 UCS Search Trace
+                    </h2>
+
+                    <p>
+                        Actions selected by the search algorithm
+                    </p>
+
+                </div>
+
+                <div
+                    id="stepCounter"
+                    class="step-counter">
+
+                    READY
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="trace"
+                class="trace">
+
+                <div class="empty">
+
+                    Press
+                    <b>ACTIVATE ROBOT</b>
+                    to start UCS.
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- STRIPS -->
+        <!-- ================================================= -->
+
+        <div class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        ⚙ STRIPS State
+                    </h2>
+
+                    <p>
+                        Robot world predicates
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="strips">
+
+
+                <div class="predicate">
+
+                    <code>
+                        At(Robot, Warehouse)
+                    </code>
+
+                    <span class="true">
+                        INITIAL
+                    </span>
+
+                </div>
+
+
+                <div class="predicate">
+
+                    <code>
+                        At(Product, Warehouse)
+                    </code>
+
+                    <span class="true">
+                        ORDER
+                    </span>
+
+                </div>
+
+
+                <div class="predicate">
+
+                    <code>
+                        Has(Robot, Product)
+                    </code>
+
+                    <span
+                        id="hasProduct"
+                        class="false">
+                        FALSE
+                    </span>
+
+                </div>
+
+
+                <div class="predicate">
+
+                    <code id="deliveredPredicate">
+                        Delivered(Product, House 2)
+                    </code>
+
+                    <span
+                        id="delivered"
+                        class="false">
+                        FALSE
+                    </span>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- FOOTER -->
+    <!-- ================================================= -->
+
+    <footer>
+
+        <span>
+            AI ROBOT DELIVERY LAB
+        </span>
+
+        <span>
+            UCS + STRIPS + Flask
+        </span>
+
+    </footer>
+
+</div>
+
+
+<script>
+
+const POSITIONS = {{ positions | tojson }};
+
+const NAMES = {{ names | tojson }};
+
+
+const graphEdges = [
+
+    ["WAREHOUSE", "A"],
+    ["WAREHOUSE", "B"],
+    ["WAREHOUSE", "C"],
+    ["WAREHOUSE", "D"],
+
+    ["A", "S1"],
+    ["A", "S2"],
+
+    ["B", "S2"],
+    ["B", "S3"],
+
+    ["C", "S3"],
+    ["C", "S4"],
+
+    ["D", "S4"],
+    ["D", "S5"],
+
+    ["S1", "S2"],
+    ["S2", "S3"],
+    ["S3", "S4"],
+    ["S4", "S5"],
+
+    ["S1", "H1"],
+    ["S1", "H2"],
+
+    ["S2", "H2"],
+    ["S2", "H3"],
+
+    ["S3", "H3"],
+    ["S3", "H4"],
+
+    ["S4", "H4"],
+    ["S4", "H5"],
+
+    ["S5", "H5"]
+
+];
+
+
+const map =
+    document.getElementById("map");
+
+const robot =
+    document.getElementById("robot");
+
+const packageBox =
+    document.getElementById("package");
+
+const statusText =
+    document.getElementById("status");
+
+const trace =
+    document.getElementById("trace");
+
+const totalCost =
+    document.getElementById("totalCost");
+
+const currentState =
+    document.getElementById("currentState");
+
+const goalState =
+    document.getElementById("goalState");
+
+const hasProduct =
+    document.getElementById("hasProduct");
+
+const delivered =
+    document.getElementById("delivered");
+
+const stepCounter =
+    document.getElementById("stepCounter");
+
+const deliveryEffect =
+    document.getElementById("deliveryEffect");
+
+
+let animationTimer = null;
+
+let currentAction = 0;
+
+let actions = [];
+
+let currentCost = 0;
+
+
+function position(key) {
+
+    return POSITIONS[key];
+
+}
+
+
+function drawRoads() {
+
+    const svg =
+        document.getElementById("roads");
+
+    svg.innerHTML = "";
+
+    graphEdges.forEach(edge => {
+
+        const a =
+            position(edge[0]);
+
+        const b =
+            position(edge[1]);
+
+        const line =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "line"
+            );
+
+        line.setAttribute(
+            "x1",
+            a[0]
+        );
+
+        line.setAttribute(
+            "y1",
+            a[1]
+        );
+
+        line.setAttribute(
+            "x2",
+            b[0]
+        );
+
+        line.setAttribute(
+            "y2",
+            b[1]
+        );
+
+        line.classList.add(
+            "road"
+        );
+
+        svg.appendChild(line);
+
+    });
+
+}
+
+
+function moveRobot(key) {
+
+    const p =
+        position(key);
+
+    robot.style.left =
+        p[0] + "%";
+
+    robot.style.top =
+        p[1] + "%";
+
+}
+
+
+function movePackage(key) {
+
+    const p =
+        position(key);
+
+    packageBox.style.left =
+        p[0] + "%";
+
+    packageBox.style.top =
+        p[1] + "%";
+
+}
+
+
+function setActive(key) {
+
+    document
+        .querySelectorAll(".location")
+        .forEach(element => {
+
+            element.classList.remove(
+                "active"
+            );
+
+        });
+
+
+    const element =
+        document.getElementById(
+            "location-" + key
+        );
+
+    if (element) {
+
+        element.classList.add(
+            "active"
+        );
+
+    }
+
+}
+
+
+function createTrace(data) {
+
+    trace.innerHTML = "";
+
+    data.actions.forEach(
+        (action, index) => {
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+            row.className =
+                "trace-row";
+
+            row.id =
+                "trace-" + index;
+
+
+            row.innerHTML = `
+
+                <div class="trace-number">
+                    ${index + 1}
+                </div>
+
+                <div class="trace-action">
+
+                    <strong>
+                        ${action.action}
+                    </strong>
+
+                    <span>
+                        ${action.text}
+                    </span>
+
+                </div>
+
+                <div class="trace-cost">
+                    +${action.cost}
+                </div>
+
+            `;
+
+
+            trace.appendChild(row);
+
+        }
+    );
+
+}
+
+
+function reset() {
+
+    clearInterval(
+        animationTimer
+    );
+
+    currentAction = 0;
+
+    currentCost = 0;
+
+    actions = [];
+
+
+    moveRobot(
+        "WAREHOUSE"
+    );
+
+    movePackage(
+        "WAREHOUSE"
+    );
+
+
+    packageBox.style.display =
+        "block";
+
+
+    robot.classList.remove(
+        "delivering"
+    );
+
+
+    deliveryEffect.classList.remove(
+        "show"
+    );
+
+
+    document
+        .querySelectorAll(".location")
+        .forEach(element => {
+
+            element.classList.remove(
+                "active"
+            );
+
+        });
+
+
+    document
+        .getElementById(
+            "location-WAREHOUSE"
+        )
+        .classList.add(
+            "active"
+        );
+
+
+    statusText.textContent =
+        "Robot is waiting in Main Warehouse";
+
+
+    currentState.textContent =
+        "At(Robot, Warehouse)";
+
+
+    totalCost.textContent =
+        "0";
+
+
+    hasProduct.textContent =
+        "FALSE";
+
+    hasProduct.className =
+        "false";
+
+
+    delivered.textContent =
+        "FALSE";
+
+    delivered.className =
+        "false";
+
+
+    stepCounter.textContent =
+        "READY";
+
+
+    trace.innerHTML = `
+
+        <div class="empty">
+
+            Press
+            <b>ACTIVATE ROBOT</b>
+            to start UCS.
+
+        </div>
+
+    `;
+
+}
+
+
+async function startSimulation() {
+
+    const productLocation =
+        document.getElementById(
+            "productLocation"
+        ).value;
+
+
+    const destination =
+        document.getElementById(
+            "goalHouse"
+        ).value;
+
+
+    statusText.textContent =
+        "🧠 UCS is searching the state space...";
+
+
+    stepCounter.textContent =
+        "SEARCHING";
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/solve",
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        product_location:
+                            productLocation,
+
+                        goal_house:
+                            destination
+
+                    })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error
+            );
+
+        }
+
+
+        actions =
+            data.actions;
+
+
+        totalCost.textContent =
+            data.total_cost;
+
+
+        goalState.textContent =
+            `Delivered(Product, ${NAMES[destination]})`;
+
+
+        document
+            .getElementById(
+                "deliveredPredicate"
+            )
+            .textContent =
+            `Delivered(Product, ${NAMES[destination]})`;
+
+
+        createTrace(
+            data
+        );
+
+
+        animateActions(
+            data
+        );
+
+
+    }
+
+    catch(error) {
+
+        statusText.textContent =
+            "❌ " + error.message;
+
+        stepCounter.textContent =
+            "ERROR";
+
+    }
+
+}
+
+
+function animateActions(data) {
+
+    currentAction = 0;
+
+    currentCost = 0;
+
+
+    moveRobot(
+        "WAREHOUSE"
+    );
+
+
+    movePackage(
+        data.product_location
+    );
+
+
+    packageBox.style.display =
+        "block";
+
+
+    animationTimer =
+        setInterval(
+            () => {
+
+                if (
+                    currentAction >=
+                    actions.length
+                ) {
+
+                    finishDelivery(
+                        data.goal
+                    );
+
+                    return;
+
+                }
+
+
+                executeAction(
+                    actions[currentAction]
+                );
+
+
+                currentAction++;
+
+            },
+            1300
+        );
+
+}
+
+
+function executeAction(action) {
+
+    document
+        .querySelectorAll(".trace-row")
+        .forEach(row => {
+
+            row.classList.remove(
+                "current"
+            );
+
+        });
+
+
+    const row =
+        document.getElementById(
+            "trace-" + (currentAction)
+        );
+
+
+    if (row) {
+
+        row.classList.add(
+            "current"
+        );
+
+        row.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest"
+        });
+
+    }
+
+
+    stepCounter.textContent =
+        `STEP ${currentAction + 1} / ${actions.length}`;
+
+
+    if (
+        action.action === "MOVE"
+    ) {
+
+        moveRobot(
+            action.to
+        );
+
+
+        if (
+            hasProduct.textContent ===
+            "TRUE"
+        ) {
+
+            movePackage(
+                action.to
+            );
+
+        }
+
+
+        currentCost +=
+            action.cost;
+
+
+        totalCost.textContent =
+            currentCost;
+
+
+        currentState.textContent =
+            `At(Robot, ${NAMES[action.to]})`;
+
+
+        statusText.textContent =
+            `🚗 ${action.text}`;
+
+
+        setActive(
+            action.to
+        );
+
+    }
+
+
+    else if (
+        action.action === "PICK"
+    ) {
+
+        hasProduct.textContent =
+            "TRUE";
+
+        hasProduct.className =
+            "true";
+
+
+        packageBox.style.display =
+            "none";
+
+
+        statusText.textContent =
+            "📦 Product picked up by robot";
+
+
+        setTimeout(() => {
+
+            packageBox.style.display =
+                "block";
+
+            movePackage(
+                action.from
+            );
+
+        }, 300);
+
+    }
+
+
+    else if (
+        action.action === "DELIVER"
+    ) {
+
+        hasProduct.textContent =
+            "FALSE";
+
+        hasProduct.className =
+            "false";
+
+
+        delivered.textContent =
+            "TRUE";
+
+        delivered.className =
+            "true";
+
+
+        packageBox.style.display =
+            "none";
+
+
+        statusText.textContent =
+            "📦 Product delivered to client";
+
+
+        robot.classList.add(
+            "delivering"
+        );
+
+    }
+
+}
+
+
+function finishDelivery(goal) {
+
+    clearInterval(
+        animationTimer
+    );
+
+
+    stepCounter.textContent =
+        "GOAL REACHED";
+
+
+    currentState.textContent =
+        `At(Robot, ${NAMES[goal]})`;
+
+
+    statusText.textContent =
+        "🎉 Client requirement successfully satisfied!";
+
+
+    setActive(
+        goal
+    );
+
+
+    deliveryEffect.classList.add(
+        "show"
+    );
+
+
+    setTimeout(() => {
+
+        deliveryEffect.classList.remove(
+            "show"
+        );
+
+    }, 2200);
+
+}
+
+
+document
+    .getElementById(
+        "startButton"
+    )
+    .addEventListener(
+        "click",
+        startSimulation
+    );
+
+
+document
+    .getElementById(
+        "resetButton"
+    )
+    .addEventListener(
+        "click",
+        reset
+    );
+
+
+window.addEventListener(
+    "resize",
+    drawRoads
+);
+
+
+drawRoads();
+
+reset();
+
+</script>
+
+
+</body>
+
+</html>
